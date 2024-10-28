@@ -3,24 +3,17 @@ arkadia_soundsense = arkadia_soundsense or {}
 arkadia_soundsense.soundtable = {
     ["walka"] = {
         ["zadane"] = {
-            ["1"] = "sounds/walka_zadane_1.mp3",
-            ["2"] = "sounds/walka_zadane_2.mp3",
-            ["3"] = "sounds/walka_zadane_3.mp3",
-        },
-        ["otrzymane"] = {
-            ["1"] = "sounds/walka_otrzymane_1.mp3",
-            ["2"] = "sounds/walka_otrzymane_2.mp3",
-            ["3"] = "sounds/walka_otrzymane_3.mp3",
+            ["cios"] = "sounds/walka_zadane_1.mp3",
+            ["finish"] = "sounds/walka_zadane_2.mp3",
         },
         ["uniki"] = {
-            ["1"] = "sounds/walka_uniki_1.mp3",
-            ["2"] = "sounds/walka_uniki_2.mp3",
-            ["3"] = "sounds/walka_uniki_3.mp3",
+            ["unik"] = "sounds/walka_uniki_1.mp3",
+            ["pudlo"] = "sounds/walka_uniki_2.mp3",
         },
         ["parowanie"] = {
-            ["1"] = "sounds/walka_parowanie_1.mp3",
-            ["2"] = "sounds/walka_parowanie_2.mp3",
-            ["3"] = "sounds/walka_parowanie_3.mp3",
+            ["bron"] = "sounds/walka_parowanie_1.mp3",
+            ["zbroja"] = "sounds/walka_parowanie_2.mp3",
+            ["tarcza"] = "sounds/walka_parowanie_3.mp3",
         }
     },
     ["env"] = {
@@ -35,51 +28,98 @@ local sound_map = {
     ["uuu wieje wiatr"] = arkadia_soundsense.soundtable["env"]["wiatr"]
 }
 
--- Function to play sound
-function arkadia_soundsense:play_sound(sound)
-    if sound == "" or sound == nil then
+function arkadia_soundsense.play_sound(sound)
+    if not sound then
         return
     end
-    playSoundFile(sound)
+    playSoundFileplaySoundFile(
+        sound -- name
+        , 75 -- volume
+        , nil -- fadein
+        , nil -- fadeout
+        , nil -- start
+        , 25 -- priority
+        , "https://raw.githubusercontent.com/StickMUD/StickMUDSounds/master/sounds/" -- url
+        , nil -- finish
+    )
 end
 
--- Function to register sound handlers
-function arkadia_soundsense:register_sound_handler(pattern, sound)
-    registerAnonymousEventHandler("gmcp.gmcp_msgs", function()
-        if gmcp.gmcp_msgs then
-            local lines = {}
-            local numberOfExtraLines = getLineCount() - getLineNumber()
-            while true do
-                local currentLine = getCurrentLine():trim()
-                table.insert(lines, currentLine)
-                selectCurrentLine()
-                copy()
-                deleteLine()
-                if currentLine:ends(".") or currentLine:ends("?") or currentLine:ends("!") or currentLine == "ERROR: invalid line number" or currentLine == "" then
-                    break
-                end
-                if #lines >= numberOfExtraLines then
-                    scripts:print_log("Cos poszlo nie tak. Zglos blad zalaczajac linie ponizej.", true)
-                    display({
-                        type = gmcp.gmcp_msgs.type,
-                        lines = lines
-                    })
-                    break
-                end
-            end
-            local message = table.concat(lines, " ")
-            if message:find(pattern) then
-                arkadia_soundsense:play_sound(sound)
-                --display message  if sound was played
-                cecho("\n<" .. pattern .. "> " .. message .. "\n")
-                
+function trigger_func_skrypty_ui_gags_color_color_moje_parowanie_ja_paruje()
+    scripts.gags:gag_prefix("par", "moje_parowanie")
+    arkadia_soundsense.play_sound(arkadia_soundsense.soundtable["walka"]["parowanie"]["bron"])
+end
 
-            end
+function trigger_func_skrypty_ui_gags_color_color_moje_parowanie_ja_zbroja_paruje()
+    scripts.gags:gag_prefix("zbr", "moje_parowanie")
+    arkadia_soundsense.play_sound(arkadia_soundsense.soundtable["walka"]["parowanie"]["zbroja"])
+end
+
+function trigger_func_skrypty_ui_gags_color_color_moje_parowanie_ja_tarcza_paruje()
+    scripts.gags:gag_prefix("tar", "moje_parowanie")
+    arkadia_soundsense.play_sound(arkadia_soundsense.soundtable["walka"]["parowanie"]["tarcza"])
+end
+
+function trigger_func_skrypty_ui_gags_color_color_moje_parowanie_baron_tarcza2()
+    scripts.gags:gag_prefix("TARCZA SPEC", "moje_parowanie")
+    arkadia_soundsense.play_sound(arkadia_soundsense.soundtable["walka"]["parowanie"]["tarcza"])
+end
+
+function trigger_func_skrypty_ui_gags_color_color_moje_parowanie_ja_paruje_lewak()
+    scripts.gags:gag_prefix("par", "moje_parowanie")
+    arkadia_soundsense.play_sound(arkadia_soundsense.soundtable["walka"]["parowanie"]["bron"])
+
+end
+
+function trigger_func_skrypty_ui_gags_color_color_moje_uniki_ja_unikasz_ciosu()
+    scripts.gags:gag_prefix("unk", "moje_uniki")
+    arkadia_soundsense.play_sound(arkadia_soundsense.soundtable["walka"]["uniki"]["unik"])
+end
+
+function trigger_func_skrypty_ui_gags_color_color_moje_uniki_ja_ktos_nie_trafia()
+    scripts.gags:gag_prefix("unk", "moje_uniki")
+    arkadia_soundsense.play_sound(arkadia_soundsense.soundtable["walka"]["uniki"]["pudlo"])
+end
+
+function trigger_func_skrypty_ui_gags_color_moje_ciosy(value)
+    local ignore_list = {
+        "opalizujacego runicznego",
+        "czarnoblekitnego pulsujacego morgensterna",
+	"czarnego smuklego topora",
+    }
+
+    for _, v in pairs(ignore_list) do
+        if line:match(v) then
+            return
         end
-    end)
+    end
+
+    if rex.match(line, "srebrzyst\\w+ kos\\w+ bojow\\w+") then
+        return
+    end
+    selectString(matches[1], 1)
+    setFgColor(45, 185, 45)
+    resetFormat()
+
+    scripts.gags:gag(value, 6, "moje_ciosy")
+    arkadia_soundsense.play_sound(arkadia_soundsense.soundtable["walka"]["zadane"]["cios"])
 end
 
--- Register handlers for each pattern in the sound_map
-for pattern, sound in pairs(sound_map) do
-    arkadia_soundsense:register_sound_handler(pattern, sound)
+function trigger_func_skrypty_ui_gags_moje_ciosy_bron_fin()
+    scripts.gags:gag_prefix(scripts.gags.fin_prefix, "moje_ciosy")
+    arkadia_soundsense.play_sound(arkadia_soundsense.soundtable["walka"]["zadane"]["finish"])
+end
+
+function trigger_func_skrypty_ui_gags_moje_ciosy_opal_spec(value)
+    scripts.gags:gag(value, 5, "moje_ciosy")
+    arkadia_soundsense.play_sound(arkadia_soundsense.soundtable["walka"]["zadane"]["cios"])
+end
+
+function trigger_func_skrypty_ui_gags_moje_ciosy_opal(value)
+    scripts.gags:gag(value, 7, "moje_ciosy")
+    arkadia_soundsense.play_sound(arkadia_soundsense.soundtable["walka"]["zadane"]["cios"])
+end
+
+function trigger_func_skrypty_ui_gags_moje_ciosy_opal_fin(value)
+    scripts.gags:gag_prefix(scripts.gags.fin_prefix, "moje_ciosy")
+    arkadia_soundsense.play_sound(arkadia_soundsense.soundtable["walka"]["zadane"]["finish"])
 end
